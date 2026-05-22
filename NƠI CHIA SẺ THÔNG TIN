@@ -1,473 +1,427 @@
-# MỤC TIÊU THẬT
+AGC DEBUG OVERLAY SYSTEM — TRACE HOÀN CHỈNH 100%
 
-Clone nguyên behavior overlay debug của AGC sang SGCAM.
+MỤC TIÊU
 
-KHÔNG phải:
+Phục dựng sang SGCAM chức năng:
 
-* overlay tương tự
-* AF overlay riêng
-* debug renderer khác.
-
-Mục tiêu chính xác:
-
-```text
-AGC Show Debug Data
-→ port nguyên behavior sang SGCAM
-```
-
-Bao gồm:
-
-* settings toggle
-* pref key
-* overlay runtime
-* FloatManager
-* FloatWindow
-* realtime text panel
-* draggable overlay
-* icon thu gọn
-* show/hide.
-
----
-
-# APK / PACKAGE
-
-## AGC tham chiếu
-
-Package:
-
-```text
-com.agc.gcam88
-```
-
-Decompile folder:
-
-```text
-AGC.apk
-```
-
----
-
-## SGCAM mục tiêu
-
-APK:
-
-```text
-SGCAM_8.5.300.XX.10_STABLE_V24.apk
-```
-
-Package:
-
-```text
-com.shamim.cam
-```
-
-Decompile folder:
-
-```text
-SGCAM
-```
-
----
-
-# THIẾT BỊ
-
-```text
-Redmi Note 10S
-ADB OK
-Windows CMD
-```
-
----
-
-# ĐÃ XÁC NHẬN THẬT TỪ AGC
-
-## 1. Overlay thật tồn tại
-
-Runtime:
-
-```text
-Panel:com.agc.gcam88/com.android.camera.CameraLauncher
-```
-
-=> overlay attach vào camera window hierarchy thật.
-
----
-
-## 2. Overlay AGC dùng:
-
-```text
-FloatManager
-FloatWindow
-```
-
-KHÔNG phải:
-
-* DebugCanvasView chính
-* renderer giả.
-
----
-
-## 3. XML overlay thật
-
-File:
-
-```text
-AGC.apk/res/layout/agc_fw_log_overlay.xml
-```
-
-Nội dung:
-
-```xml
-<LinearLayout>
-    <TextView tag="agc_tv_log" />
-    <ImageView tag="agc_iv_overlay" />
-</LinearLayout>
-```
-
-Ý nghĩa:
-
-* `agc_tv_log` = realtime text
-* `agc_iv_overlay` = icon thu gọn.
-
----
-
-## 4. AGC runtime class thật
-
-Search result:
-
-```text
-com/agc/fw/FloatManager.smali
-com/agc/fw/FloatWindow.smali
-com/agc/Debug.smali
-```
-
----
-
-## 5. AGC settings item thật
-
-Search:
-
-```cmd
-findstr /s /i "pref_show_debug_data_key" *.xml
-```
-
-Result:
-
-```xml
-<com.google.android.apps.camera.ui.preference.ManagedSwitchPreference
-    android:icon="@drawable/agc_focus"
-    android:layout="@layout/preference_with_margin"
-    android:title="@string/show_debug_data_title"
-    android:key="pref_show_debug_data_key"
-    android:defaultValue="false" />
-```
-
-File:
-
-```text
-AGC.apk/res/xml/camera_preferences.xml
-```
-
----
-
-## 6. AGC string thật
-
-```xml
-<string name="show_debug_data_title">Show debug data</string>
-```
-
----
-
-## 7. AGC runtime lifecycle THẬT
-
-TRACE ĐÃ XÁC NHẬN:
-
-```cmd
-findstr /s /i "Lcom/agc/Debug;->showDebugView" *.smali
-```
-
-Result:
-
-```text
-smali_classes3/com/google/android/apps/camera/legacy/app/activity/main/CameraActivity.smali
-```
-
----
-
-## 8. AGC gọi runtime ở đâu
-
-Trong:
-
-```smali
-.method protected onCreate(Landroid/os/Bundle;)V
-```
-
-đầu method:
-
-```smali
-move-object/from16 v0, p0
-
-invoke-static {v0}, Lcom/agc/Debug;->showDebugView(Landroid/app/Activity;)V
-```
-
----
-
-## 9. AGC destroy runtime ở đâu
-
-Trong:
-
-```smali
-.method protected final onDestroy()V
-```
-
-có:
-
-```smali
-invoke-static {p0}, Lcom/agc/Debug;->destoryDebugView(Landroid/content/Context;)V
-```
-
----
-
-# ĐÃ COPY TỪ AGC → SGCAM
-
-## ĐÃ COPY THÀNH CÔNG
-
-### smali
-
-```text
-smali_classes2/com/agc/fw/*
-smali_classes2/com/agc/Debug.smali
-```
-
----
-
-### layout
-
-```text
-res/layout/agc_fw_log_overlay.xml
-```
-
----
-
-### drawable
-
-```text
-res/drawable/agc_debug.xml
-res/drawable/agc_log_overlay_bg.xml
-res/drawable/agc_focus.*
-```
-
----
-
-# ĐÃ THÊM SETTINGS ITEM VÀO SGCAM
-
-File:
-
-```text
-SGCAM/res/xml/camera_preferences.xml
-```
-
-ĐÃ CHÈN:
-
-```xml
-<com.google.android.apps.camera.ui.preference.ManagedSwitchPreference
-    android:icon="@drawable/agc_focus"
-    android:layout="@layout/preference_with_margin"
-    android:title="@string/show_debug_data_title"
-    android:key="pref_show_debug_data_key"
-    android:defaultValue="false" />
-```
-
----
-
-# ĐÃ THÊM STRING
-
-File:
-
-```text
-SGCAM/res/values/strings.xml
-```
-
-ĐÃ THÊM:
-
-```xml
-<string name="show_debug_data_title">Show debug data</string>
-```
-
----
-
-# KẾT QUẢ HIỆN TẠI
-
-## SUCCESS
-
-### Toggle đã hiện trong settings
-
-```text
 Show debug data
-```
 
-=> settings layer đã port thành công.
+bao gồm:
 
----
+switch preference
 
-# ĐÃ THỬ RUNTIME INJECT
+floating overlay
 
-## SGCAM CameraActivity thật
+icon
 
-File:
+drag move
 
-```text
-smali_classes2/com/google/android/apps/camera/legacy/app/activity/main/CameraActivity.smali
-```
+long press toggle
 
----
+popup window
 
-## SGCAM onCreate thực tế
+realtime text area
 
-KHÔNG giống AGC.
+metadata render
 
-Đầu method có:
 
-* permission
-* changelog
-* OTA
-* crash handler
-* instrumentation
-* window config
-* setContentView
 
 ---
 
-## Injection point đã thử
+I. KEY CHÍNH XÁC
 
-SAU:
+preference key
 
-```smali
-invoke-virtual {v0, v4}, Landroid/app/Activity;->setContentView(I)V
-```
+pref_show_debug_data_key
 
-ĐÃ CHÈN:
-
-```smali
-invoke-static {v0}, Lcom/agc/Debug;->showDebugView(Landroid/app/Activity;)V
-```
 
 ---
 
-## onDestroy SGCAM thật
+II. PREFERENCE XML THẬT
 
-Superclass thật:
+FILE
 
-```smali
-invoke-super {p0}, Ldqt;->onDestroy()V
-```
+res/xml/camera_preferences.xml
 
-KHÔNG phải:
+NODE THẬT
 
-```smali
-Leqw
-```
+<com.google.android.apps.camera.ui.preference.ManagedSwitchPreference
+    android:icon="@drawable/agc_focus"
+    android:layout="@layout/preference_with_margin"
+    android:title="@string/show_debug_data_title"
+    android:key="pref_show_debug_data_key"
+    android:defaultValue="false" />
 
----
-
-## ĐÃ CHÈN
-
-TRƯỚC invoke-super:
-
-```smali
-invoke-static {p0}, Lcom/agc/Debug;->destoryDebugView(Landroid/content/Context;)V
-```
 
 ---
 
-# KẾT QUẢ TEST THẬT
+III. STRING THẬT
 
-## 1. Overlay KHÔNG hiện
+FILE
 
-Dù:
+res/values/strings.xml
 
-* toggle ON
-* runtime inject đã có.
+VALUE
 
----
+<string name="show_debug_data_title">Show debug data</string>
 
-## 2. Chuyển sang VIDEO → CRASH
-
-Dù:
-
-* inject sau setContentView
-* không inject onResume nữa.
 
 ---
 
-# KẾT LUẬN THẬT HIỆN TẠI
+IV. ADVANCED SETTINGS FLOW
 
-## ĐÃ XÁC NHẬN:
+FILE
 
-Crash KHÔNG còn do:
+com/agc/AdvancedSettings.java
 
-* lifecycle timing đơn giản
-* onResume sai.
+METHOD THẬT
 
----
+public static boolean isShowDebugData() {
+    return Pref.MenuValue("pref_show_debug_data_key", 0) == 1;
+}
 
-## VẤN ĐỀ THẬT BÂY GIỜ:
-
-```text
-AGC FloatWindow / FloatManager
-đang phụ thuộc runtime infrastructure riêng của AGC
-```
-
-Có thể là:
-
-* WindowManager config
-* class dependency
-* resource dependency
-* handler/runnable
-* internal callback
-* decor/window assumption
-* AGC-specific init chain.
 
 ---
 
-# ĐIỀU TUYỆT ĐỐI KHÔNG ĐƯỢC LÀM TIẾP
+V. DEBUG ENTRY SYSTEM
 
-KHÔNG:
+FILE
 
-* inject mò
-* đoán lifecycle
-* force visible
-* rewrite feature
-* dùng overlay khác
-* invent feature khác.
+com/agc/Debug.java
 
----
+OBJECT THẬT
 
-# VIỆC PHẢI LÀM TIẾP THEO Ở CHAT MỚI
+public static final FloatManager focusView =
+    new FloatManager("pref_show_debug_data_key", 1, false);
 
-## BẮT BUỘC LẤY STACKTRACE THẬT
-
-CMD:
-
-```cmd
-adb logcat AndroidRuntime:E *:S
-```
-
-Sau đó:
-
-* mở app
-* chuyển video
-* copy crash stacktrace MỚI NHẤT.
 
 ---
 
-# MỤC TIÊU CHAT MỚI
+VI. CAMERA ACTIVITY INJECTION
 
-Xác định CHÍNH XÁC:
+FILE
 
-* class nào crash
-* method nào crash
-* dependency nào thiếu
-* runtime nào incompatible.
+com/google/android/apps/camera/legacy/app/activity/main/CameraActivity.java
 
-KHÔNG được suy diễn nữa.
+onCreate()
+
+Debug.showDebugView(cameraActivity);
+
+
+---
+
+VII. OVERLAY SHOW FLOW
+
+FILE
+
+com/agc/fw/FloatManager.java
+
+METHOD
+
+public void showFloat(final Activity activity)
+
+LOGIC
+
+if (getOverlayState() > 0)
+
+↓
+
+initView(activity);
+show(activity);
+
+
+---
+
+VIII. OVERLAY STATE SOURCE
+
+METHOD
+
+private int getOverlayState() {
+    return Pref.MenuValue(this.key);
+}
+
+KEY THẬT
+
+pref_show_debug_data_key
+
+
+---
+
+IX. OVERLAY UI FILE THẬT
+
+FILE
+
+res/layout/agc_fw_log_overlay.xml
+
+NỘI DUNG THẬT
+
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    android:orientation="vertical"
+    android:background="@drawable/agc_log_overlay_bg"
+    android:padding="4.0dip"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <TextView
+        android:textSize="12.0sp"
+        android:textColor="#ffffffff"
+        android:tag="agc_tv_log"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="8.0dip"
+        android:layout_marginRight="8.0dip"
+        android:maxWidth="150.0dip"
+        android:minWidth="44.0dip"
+        android:text="\nLog"
+        android:maxLines="4"
+        android:minLines="3" />
+
+    <ImageView
+        android:tag="agc_iv_overlay"
+        android:padding="8.0dip"
+        android:visibility="gone"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/agc_debug" />
+</LinearLayout>
+
+
+---
+
+X. TAG THẬT ĐANG ĐƯỢC CODE DÙNG
+
+TEXT TAG
+
+agc_tv_log
+
+ICON TAG
+
+agc_iv_overlay
+
+
+---
+
+XI. DRAWABLE THẬT
+
+ICON
+
+@drawable/agc_debug
+
+BACKGROUND
+
+@drawable/agc_log_overlay_bg
+
+
+---
+
+XII. FLOAT WINDOW SYSTEM
+
+FILE
+
+com/agc/fw/FloatWindow.java
+
+Đây là engine:
+
+drag
+
+move
+
+floating attach
+
+overlay window
+
+
+
+---
+
+XIII. POPUP SYSTEM
+
+FILE
+
+com/agc/fw/FloatManager.java
+
+METHOD
+
+initPopupWindow(Context)
+
+inflate:
+
+res/layout/agc_fw_dialog_layout.xml
+
+
+---
+
+XIV. POPUP RESOURCE FILES
+
+FILES
+
+res/layout/agc_fw_dialog_layout.xml
+res/layout/agc_fw_list_item.xml
+
+
+---
+
+XV. LONG PRESS MODE TOGGLE
+
+FILE
+
+com/agc/fw/FloatManager.java
+
+METHOD
+
+setOnLongClickListener()
+
+CHỨC NĂNG
+
+Toggle:
+
+icon mode
+
+text mode
+
+
+bằng:
+
+setVisibility()
+
+
+---
+
+XVI. REALTIME DATA SOURCE
+
+FILE
+
+com/Globals.java
+
+METHOD THẬT
+
+public static void metadataValue(kou kouVar, kli kliVar)
+
+
+---
+
+XVII. REALTIME ENABLE CHECK
+
+CONDITION
+
+if (AdvancedSettings.isShowDebugData())
+
+
+---
+
+XVIII. REALTIME OUTPUT
+
+OUTPUT CALL
+
+Debug.focusView.log("I", createTextFrom(linkedHashMap));
+
+
+---
+
+XIX. RENDER TARGET
+
+FILE
+
+com/agc/fw/FloatManager.java
+
+METHOD
+
+public void log(final String str, final String str2)
+
+
+---
+
+XX. TEXTVIEW TARGET THẬT
+
+findViewWithTag("agc_tv_log")
+
+
+---
+
+XXI. METADATA THẬT ĐANG ĐỔ
+
+VALUES
+
+AF_MODE
+AF_TRIGGER
+AF_STATE
+AE_MODE
+FLASH_MODE
+FOCUS_DISTANCE
+EXPOSURE_TIME
+ISO
+WHITE_LEVEL
+BLACK_LEVEL
+White Point
+AF_RECT
+AE_RECT
+AF_FACE
+
+
+---
+
+XXII. FILE PHẢI COPY SANG SGCAM
+
+JAVA
+
+com/agc/Debug.java
+com/agc/fw/FloatManager.java
+com/agc/fw/FloatWindow.java
+
+
+---
+
+LAYOUT
+
+res/layout/agc_fw_log_overlay.xml
+res/layout/agc_fw_dialog_layout.xml
+res/layout/agc_fw_list_item.xml
+
+
+---
+
+DRAWABLE
+
+res/drawable/agc_debug.*
+res/drawable/agc_log_overlay_bg.*
+
+
+---
+
+XML PREF
+
+camera_preferences.xml
+
+thêm node:
+
+<com.google.android.apps.camera.ui.preference.ManagedSwitchPreference
+    android:icon="@drawable/agc_focus"
+    android:layout="@layout/preference_with_margin"
+    android:title="@string/show_debug_data_title"
+    android:key="pref_show_debug_data_key"
+    android:defaultValue="false" />
+
+
+---
+
+XXIII. PHẦN ĐÃ XÁC THỰC 100%
+
+Thành phần	Trạng thái
+
+preference key	TRUE
+switch xml	TRUE
+title string	TRUE
+AdvancedSettings check	TRUE
+FloatManager binding	TRUE
+CameraActivity injection	TRUE
+overlay inflate	TRUE
+overlay drawable	TRUE
+overlay icon	TRUE
+overlay tags	TRUE
+popup layout	TRUE
+FloatWindow usage	TRUE
+realtime metadata source	TRUE
+realtime render target	TRUE
+realtime log pipeline	TRUE
